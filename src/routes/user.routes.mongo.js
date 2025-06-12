@@ -11,7 +11,10 @@ const upload = multer({ storage: multer.memoryStorage() });
 /* GET JSON */
 router.get("/json", async (req, res) => {
   try {
-    const usuarios = await Usuario.find();
+    const usuarios = await Usuario.find().select('-contrasena');
+    
+    console.log(usuarios);
+    
     res.json(usuarios);
   } catch (err) {
     res
@@ -21,16 +24,7 @@ router.get("/json", async (req, res) => {
 });
 
 /* GET XML */
-// router.get("/xml", async (req, res) => {
-//   try {
-//     const usuarios = await Usuario.find();
-//     const xml = builder.buildObject({ usuarios });
-//     res.set("Content-Type", "application/xml");
-//     res.send(xml);
-//   } catch (err) {
-//     res.status(500).send(`<error>Error al obtener usuarios</error>`);
-//   }
-// });
+
 router.get("/xml", async (req, res) => {
   try {
     const usuarios = await Usuario.find();
@@ -39,7 +33,6 @@ router.get("/xml", async (req, res) => {
       id: u._id.toString(),
       nombre: u.nombre,
       email: u.email,
-      contrasena: u.contrasena,
       cv: u.cv || "",
     }));
 
@@ -70,29 +63,7 @@ router.post("/json", upload.single("cv"), async (req, res) => {
 });
 
 /* POST XML */
-// router.post("/xml", upload.single("cv"), async (req, res) => {
-//   try {
-//     const { nombre, email, contrasena } = req.body;
-//     const cv = req.file ? `uploads/${req.file.originalname}` : null;
 
-//     const nuevoUsuario = new Usuario({ nombre, email, contrasena, cv });
-//     await nuevoUsuario.save();
-
-//     const xml = builder.buildObject({
-//       mensaje: "Usuario creado",
-//       id: nuevoUsuario._id,
-//       cv,
-//     });
-
-//     res.set("Content-Type", "application/xml");
-//     res.status(201).send(xml);
-//   } catch (err) {
-//     res
-//       .status(500)
-//       .set("Content-Type", "application/xml")
-//       .send(`<error>Error al crear usuario: ${err.message}</error>`);
-//   }
-// });
 router.post("/xml", upload.single("cv"), async (req, res) => {
   try {
     const { nombre, email, contrasena } = req.body;
