@@ -18,7 +18,7 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 const corsOptions = {
-  origin: "https://talentolab-test.netlify.app/",
+  origin: "*",
   methods: "GET,POST",
   allowedHeaders: "Content-Type",
 };
