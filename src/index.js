@@ -2,7 +2,7 @@ import express from "express";
 import { envs } from "./config/envs.js";
 import { conectarMongoDB } from "./config/dbmongo.js";
 import { rateLimit } from "express-rate-limit";
-
+import cors from "cors";
 // import usersRoutes from "./routes/user.routes.js";
 import usersRoutes from "./routes/user.routes.mongo.js";
 import { join, __dirname } from "./utils/index.js";
@@ -11,13 +11,19 @@ import { join, __dirname } from "./utils/index.js";
 const app = express();
 app.set("PORT", envs.port);
 // limitador de velocidad
- const limiter = rateLimit({
+const limiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutos
   max: 10, // Máximo de 10 requests por IP
   standardHeaders: true,
   legacyHeaders: false,
 });
-
+const corsOptions = {
+  origin: "https://talentolab-test.netlify.app/",
+  methods: "GET,POST",
+  allowedHeaders: "Content-Type",
+};
+app.use(cors(corsOptions));
+//
 // middlewares
 app.use(express.json());
 app.use(express.static(join(__dirname, "/uploads")));
