@@ -17,13 +17,8 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-const corsOptions = {
-  origin: "*",
-  methods: "GET,POST",
-  allowedHeaders: "Content-Type",
-};
-app.use(cors(corsOptions));
-//
+
+app.use(cors());
 // middlewares
 app.use(express.json());
 app.use(express.static(join(__dirname, "/uploads")));
