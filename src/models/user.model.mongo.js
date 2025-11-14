@@ -21,7 +21,7 @@ const usuarioSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 60 * 60 * 12, // 12 horas
+    expires: 60 * 60 * 3, // 3 horas
   },
 });
 
