@@ -267,11 +267,16 @@ components:
       properties:
         _id:
           type: string
-          description: ID del usuario
+          description: Identificador interno del sistema
+          example: "64b8f9e2d3e1a123456789ab"
         nombre:
           type: string
+          example: "Daniel García"            # <--- Nombre real
         email:
           type: string
+          format: email
+          example: "daniel.garcia@talentolab.com" # <--- Email real
         cv:
           type: string
           description: Ruta relativa del archivo subido
+          example: "uploads/curriculum-2025.pdf"  # <--- Ruta real
