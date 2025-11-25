@@ -262,7 +262,7 @@ components:
                 description: Archivo del Curriculum Vitae (opcional en PUT, requerido en POST si aplica)
 
   schemas:
-    Esquema de Usuario:
+    UsuarioResponse:
       type: object
       properties:
         _id:

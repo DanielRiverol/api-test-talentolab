@@ -13,15 +13,18 @@ const swaggerOptions = {
     },
     servers: [
       {
-        // 2. Aquí usamos la variable de entorno
-        // Usamos '||' para tener un valor por defecto si la variable no existe
         url: process.env.SERVER_URL || "http://localhost:3000",
         description: "Servidor Principal",
       },
     ],
   },
-  apis: ["./routes/*.js", "./swagger.yaml"],
+  // 2. AQUÍ ESTÁ EL CAMBIO CRÍTICO:
+  // Usamos la variable __dirname para crear rutas absolutas
+  apis: [join(__dirname, "routes/*.js"), join(__dirname, "swagger.yaml")],
 };
+console.log(join(__dirname, "routes/*.js"));
+console.log(join(__dirname, "swagger.yaml"));
+
 const optionsUI = {
   // 1. PERSONALIZACIÓN VISUAL (CSS)
   // Puedes pasar string de CSS directo o una URL
