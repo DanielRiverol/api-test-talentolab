@@ -3,22 +3,19 @@ import { envs } from "./config/envs.js";
 import { conectarMongoDB } from "./config/dbmongo.js";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import { rateLimit } from "express-rate-limit";
 import cors from "cors";
-// import usersRoutes from "./routes/user.routes.js";
 import usersRoutes from "./routes/user.routes.mongo.js";
-import { join, __dirname, swaggerOptions,optionsUI } from "./utils/index.js";
+import {
+  join,
+  __dirname,
+  swaggerOptions,
+  optionsUI,
+  limiter,
+} from "./utils/index.js";
 
 // settings
 const app = express();
 app.set("PORT", envs.port);
-// limitador de velocidad
-const limiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutos
-  max: 10, // Máximo de 10 requests por IP
-  standardHeaders: true,
-  legacyHeaders: false,
-});
 
 app.use(cors());
 // middlewares
@@ -26,14 +23,14 @@ app.use(express.json());
 app.use(express.static(join(__dirname, "/uploads")));
 app.use(limiter);
 // routes
-app.get('/', (req,res)=>{
-  res.redirect('/api-docs')
-})
+app.get("/", (req, res) => {
+  res.redirect("/api-docs");
+});
 app.use("/api/users", usersRoutes);
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
 // Ruta para servir la documentación gráfica
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs,optionsUI));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs, optionsUI));
 // liteners
 conectarMongoDB();
 

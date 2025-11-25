@@ -1,5 +1,6 @@
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { rateLimit } from "express-rate-limit";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = join(dirname(__filename), "..");
@@ -22,8 +23,6 @@ const swaggerOptions = {
   // Usamos la variable __dirname para crear rutas absolutas
   apis: [join(__dirname, "routes/*.js"), join(__dirname, "swagger.yaml")],
 };
-console.log(join(__dirname, "routes/*.js"));
-console.log(join(__dirname, "swagger.yaml"));
 
 const optionsUI = {
   // 1. PERSONALIZACIÓN VISUAL (CSS)
@@ -35,8 +34,8 @@ const optionsUI = {
     body { background-color: #fafafa; }
   `,
   // Si prefieres cargar un archivo CSS externo:
-  customCssUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css",
+  // customCssUrl:
+  //   "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css",
 
   // 2. BRANDING (Título de la pestaña y Favicon)
   customSiteTitle: "Documentación Talento Lab",
@@ -57,5 +56,28 @@ const optionsUI = {
     supportedSubmitMethods: [],
   },
 };
+// En tu archivo src/utils/index.js o donde definas el limiter
 
-export { join, __dirname, swaggerOptions, optionsUI };
+const limiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutos
+  max: 10, 
+  standardHeaders: true,
+  legacyHeaders: false,
+  
+  // Código de estado HTTP (429 es el estándar para esto)
+  statusCode: 429,
+
+  // Respuesta JSON limpia
+  message: {
+    error: "Límite de peticiones excedido",
+    mensaje: "Estás realizando demasiadas consultas muy rápido. Espera 5 minutos."
+  },
+
+  // Ignorar peticiones desde tu propia máquina (útil para desarrollo)
+  skip: (req, res) => {
+    return req.ip === '::1' || req.ip === '127.0.0.1';
+  }
+});
+
+
+export { join, __dirname, swaggerOptions, optionsUI, limiter };

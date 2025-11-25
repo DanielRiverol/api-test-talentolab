@@ -27,8 +27,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UsuarioResponse'
+        429:
+          $ref: '#/components/responses/RateLimitError'
         500:
-          description: Error del servidor
+          $ref: '#/components/responses/ServerErrorJSON'
 
     post:
       summary: Crear nuevo usuario con CV (JSON)
@@ -46,10 +48,21 @@ paths:
                 properties:
                   mensaje:
                     type: string
+                    example: "Usuario creado"
                   usuario:
                     $ref: '#/components/schemas/UsuarioResponse'
+        429:
+          $ref: '#/components/responses/RateLimitError'
         500:
           description: Error al crear usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Error al crear usuario"
 
   /xml:
     get:
@@ -62,16 +75,17 @@ paths:
             application/xml:
               schema:
                 type: object
+                xml:
+                  name: usuarios # <--- Define el root tag <usuarios>
                 properties:
-                  usuarios:
-                    type: object
-                    properties:
-                      usuario:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/UsuarioResponse'
+                  usuario:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UsuarioResponse'
+        429:
+          $ref: '#/components/responses/RateLimitErrorXML'
         500:
-          description: Error del servidor
+          $ref: '#/components/responses/ServerErrorXML'
 
     post:
       summary: Crear nuevo usuario con CV (XML)
@@ -86,13 +100,18 @@ paths:
             application/xml:
               schema:
                 type: object
+                xml:
+                  name: root # <--- xml2js usa 'root' por defecto cuando hay varias props
                 properties:
                   mensaje:
                     type: string
+                    example: "Usuario creado"
                   usuario:
                     $ref: '#/components/schemas/UsuarioResponse'
+        429:
+          $ref: '#/components/responses/RateLimitErrorXML'
         500:
-          description: Error al crear usuario
+          $ref: '#/components/responses/ServerErrorXML'
 
   # ----------------------------------------------------
   # RUTAS POR ID: OBTENER, ELIMINAR Y ACTUALIZAR
@@ -112,8 +131,18 @@ paths:
                 $ref: '#/components/schemas/UsuarioResponse'
         404:
           description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Usuario no encontrado"
+        429:
+          $ref: '#/components/responses/RateLimitError'
         500:
-          description: Error del servidor
+          $ref: '#/components/responses/ServerErrorJSON'
 
     delete:
       summary: Eliminar usuario (JSON)
@@ -130,10 +159,21 @@ paths:
                 properties:
                   mensaje:
                     type: string
+                    example: "Usuario eliminado correctamente"
         404:
           description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Usuario no encontrado para eliminar"
+        429:
+          $ref: '#/components/responses/RateLimitError'
         500:
-          description: Error del servidor
+          $ref: '#/components/responses/ServerErrorJSON'
 
     put:
       summary: Actualizar usuario y/o CV (JSON)
@@ -152,12 +192,23 @@ paths:
                 properties:
                   mensaje:
                     type: string
+                    example: "Usuario actualizado correctamente"
                   usuario:
                     $ref: '#/components/schemas/UsuarioResponse'
         404:
           description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Usuario no encontrado para actualizar"
+        429:
+          $ref: '#/components/responses/RateLimitError'
         500:
-          description: Error del servidor
+          $ref: '#/components/responses/ServerErrorJSON'
 
   /xml/{id}:
     get:
@@ -172,13 +223,27 @@ paths:
             application/xml:
               schema:
                 type: object
+                xml:
+                  name: usuario # <--- Root tag <usuario>
                 properties:
-                  usuario:
+                  usuario: # Wrapper interno si xml2js lo genera así, o directo ref
                     $ref: '#/components/schemas/UsuarioResponse'
         404:
           description: Usuario no encontrado
+          content:
+            application/xml:
+              schema:
+                type: object
+                xml:
+                  name: error # <--- Root tag <error>
+                properties:
+                  message:
+                     type: string
+                     example: "Usuario no encontrado"
+        429:
+          $ref: '#/components/responses/RateLimitErrorXML'
         500:
-          description: Error del servidor
+          $ref: '#/components/responses/ServerErrorXML'
 
     delete:
       summary: Eliminar usuario (XML)
@@ -192,13 +257,28 @@ paths:
             application/xml:
               schema:
                 type: object
+                xml:
+                  name: root
                 properties:
                   mensaje:
                     type: string
+                    example: "Usuario eliminado correctamente"
         404:
           description: Usuario no encontrado
+          content:
+            application/xml:
+              schema:
+                type: object
+                xml:
+                  name: error
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario no encontrado para eliminar"
+        429:
+          $ref: '#/components/responses/RateLimitErrorXML'
         500:
-          description: Error del servidor
+          $ref: '#/components/responses/ServerErrorXML'
 
     put:
       summary: Actualizar usuario y/o CV (XML)
@@ -214,15 +294,30 @@ paths:
             application/xml:
               schema:
                 type: object
+                xml:
+                  name: root
                 properties:
                   mensaje:
                     type: string
+                    example: "Usuario actualizado correctamente"
                   usuario:
                     $ref: '#/components/schemas/UsuarioResponse'
         404:
           description: Usuario no encontrado
+          content:
+            application/xml:
+              schema:
+                type: object
+                xml:
+                  name: error
+                properties:
+                   message:
+                    type: string
+                    example: "Usuario no encontrado para actualizar"
+        429:
+          $ref: '#/components/responses/RateLimitErrorXML'
         500:
-          description: Error del servidor
+          $ref: '#/components/responses/ServerErrorXML'
 
 # ----------------------------------------------------
 # COMPONENTES REUTILIZABLES
@@ -236,6 +331,65 @@ components:
       description: Identificador único del usuario
       schema:
         type: string
+        example: "64b8f9e2d3e1a123456789ab"
+
+  responses:
+    RateLimitError:
+      description: Demasiadas peticiones (Rate Limit)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Límite de peticiones excedido"
+              mensaje:
+                type: string
+                example: "Estás realizando demasiadas consultas muy rápido. Espera 5 minutos."
+
+    RateLimitErrorXML:
+      description: Demasiadas peticiones (Rate Limit)
+      content:
+        application/xml:
+          schema:
+            type: object
+            xml:
+              name: error # <--- Root tag para el error XML
+            properties:
+              error:
+                type: string
+                example: "Límite de peticiones excedido"
+              mensaje:
+                type: string
+                example: "Estás realizando demasiadas consultas muy rápido. Espera 5 minutos."
+
+    ServerErrorJSON:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Error al procesar la solicitud"
+              err:
+                type: string
+                example: "Detalles técnicos del error..."
+
+    ServerErrorXML:
+      description: Error interno del servidor
+      content:
+        application/xml:
+          schema:
+            type: object
+            xml:
+              name: error
+            properties:
+              message:
+                 type: string
+                 example: "Error al procesar la solicitud"
 
   requestBodies:
     UsuarioMultipart:
@@ -248,14 +402,17 @@ components:
               nombre:
                 type: string
                 description: Nombre del usuario
+                example: "Daniel García"
               email:
                 type: string
                 format: email
                 description: Correo electrónico
+                example: "daniel.garcia@talentolab.com"
               contrasena:
                 type: string
                 format: password
                 description: Contraseña del usuario
+                example: "pass1234"
               cv:
                 type: string
                 format: binary
@@ -264,6 +421,11 @@ components:
   schemas:
     UsuarioResponse:
       type: object
+      # ------------------------------------------
+      # ESTA ES LA CLAVE PARA QUE XML FUNCIONE
+      # ------------------------------------------
+      xml:
+        name: usuario
       properties:
         _id:
           type: string
@@ -271,12 +433,12 @@ components:
           example: "64b8f9e2d3e1a123456789ab"
         nombre:
           type: string
-          example: "Daniel García"            # <--- Nombre real
+          example: "Daniel García"
         email:
           type: string
           format: email
-          example: "daniel.garcia@talentolab.com" # <--- Email real
+          example: "daniel.garcia@talentolab.com"
         cv:
           type: string
           description: Ruta relativa del archivo subido
-          example: "uploads/curriculum-2025.pdf"  # <--- Ruta real
+          example: "uploads/curriculum-2025.pdf"
