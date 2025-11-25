@@ -1,0 +1,277 @@
+openapi: 3.0.0
+info:
+  title: API de Usuarios (JSON & XML) Talento Lab
+  description: API desarrollada para el curso de Testing QA.
+  version: 1.0.0
+
+tags:
+  - name: JSON
+    description: Endpoints con respuestas en formato JSON
+  - name: XML
+    description: Endpoints con respuestas en formato XML
+
+paths:
+  # ----------------------------------------------------
+  # RUTAS BASE: LISTAR (GET) Y CREAR (POST)
+  # ----------------------------------------------------
+  /json:
+    get:
+      summary: Listar todos los usuarios (JSON)
+      tags: [JSON]
+      responses:
+        200:
+          description: Lista obtenida correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UsuarioResponse'
+        500:
+          description: Error del servidor
+
+    post:
+      summary: Crear nuevo usuario con CV (JSON)
+      tags: [JSON]
+      description: Crea un usuario y permite subir el archivo CV.
+      requestBody:
+        $ref: '#/components/requestBodies/UsuarioMultipart'
+      responses:
+        201:
+          description: Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                  usuario:
+                    $ref: '#/components/schemas/UsuarioResponse'
+        500:
+          description: Error al crear usuario
+
+  /xml:
+    get:
+      summary: Listar todos los usuarios (XML)
+      tags: [XML]
+      responses:
+        200:
+          description: Lista obtenida correctamente
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  usuarios:
+                    type: object
+                    properties:
+                      usuario:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/UsuarioResponse'
+        500:
+          description: Error del servidor
+
+    post:
+      summary: Crear nuevo usuario con CV (XML)
+      tags: [XML]
+      description: Crea un usuario y permite subir el archivo CV.
+      requestBody:
+        $ref: '#/components/requestBodies/UsuarioMultipart'
+      responses:
+        201:
+          description: Usuario creado exitosamente
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                  usuario:
+                    $ref: '#/components/schemas/UsuarioResponse'
+        500:
+          description: Error al crear usuario
+
+  # ----------------------------------------------------
+  # RUTAS POR ID: OBTENER, ELIMINAR Y ACTUALIZAR
+  # ----------------------------------------------------
+  /json/{id}:
+    get:
+      summary: Obtener usuario por ID (JSON)
+      tags: [JSON]
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        200:
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponse'
+        404:
+          description: Usuario no encontrado
+        500:
+          description: Error del servidor
+
+    delete:
+      summary: Eliminar usuario (JSON)
+      tags: [JSON]
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        200:
+          description: Usuario eliminado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+        404:
+          description: Usuario no encontrado
+        500:
+          description: Error del servidor
+
+    put:
+      summary: Actualizar usuario y/o CV (JSON)
+      tags: [JSON]
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        $ref: '#/components/requestBodies/UsuarioMultipart'
+      responses:
+        200:
+          description: Usuario actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                  usuario:
+                    $ref: '#/components/schemas/UsuarioResponse'
+        404:
+          description: Usuario no encontrado
+        500:
+          description: Error del servidor
+
+  /xml/{id}:
+    get:
+      summary: Obtener usuario por ID (XML)
+      tags: [XML]
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        200:
+          description: Usuario encontrado
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  usuario:
+                    $ref: '#/components/schemas/UsuarioResponse'
+        404:
+          description: Usuario no encontrado
+        500:
+          description: Error del servidor
+
+    delete:
+      summary: Eliminar usuario (XML)
+      tags: [XML]
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        200:
+          description: Usuario eliminado correctamente
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+        404:
+          description: Usuario no encontrado
+        500:
+          description: Error del servidor
+
+    put:
+      summary: Actualizar usuario y/o CV (XML)
+      tags: [XML]
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        $ref: '#/components/requestBodies/UsuarioMultipart'
+      responses:
+        200:
+          description: Usuario actualizado correctamente
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                  usuario:
+                    $ref: '#/components/schemas/UsuarioResponse'
+        404:
+          description: Usuario no encontrado
+        500:
+          description: Error del servidor
+
+# ----------------------------------------------------
+# COMPONENTES REUTILIZABLES
+# ----------------------------------------------------
+components:
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      description: Identificador único del usuario
+      schema:
+        type: string
+
+  requestBodies:
+    UsuarioMultipart:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              nombre:
+                type: string
+                description: Nombre del usuario
+              email:
+                type: string
+                format: email
+                description: Correo electrónico
+              contrasena:
+                type: string
+                format: password
+                description: Contraseña del usuario
+              cv:
+                type: string
+                format: binary
+                description: Archivo del Curriculum Vitae (opcional en PUT, requerido en POST si aplica)
+
+  schemas:
+    Esquema de Usuario:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID del usuario
+        nombre:
+          type: string
+        email:
+          type: string
+        cv:
+          type: string
+          description: Ruta relativa del archivo subido

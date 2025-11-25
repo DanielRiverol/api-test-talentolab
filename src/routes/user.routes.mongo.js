@@ -198,12 +198,10 @@ router.put("/json/:id", upload.single("cv"), async (req, res) => {
         .json({ error: "Usuario no encontrado para actualizar" });
     }
 
-    res
-      .status(200)
-      .json({
-        mensaje: "Usuario actualizado correctamente",
-        usuario: usuarioActualizado,
-      });
+    res.status(200).json({
+      mensaje: "Usuario actualizado correctamente",
+      usuario: usuarioActualizado,
+    });
   } catch (err) {
     res
       .status(500)
